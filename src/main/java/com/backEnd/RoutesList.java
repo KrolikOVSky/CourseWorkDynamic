@@ -8,7 +8,6 @@ public class RoutesList{
     private List<Route> routes;
 
     public RoutesList() {
-        this.quantity = 0L;
         this.routes = new ArrayList<Route>();
     }
 
