@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class AboutWindow {
 
@@ -27,11 +28,21 @@ public class AboutWindow {
         root.setBottom(button);
         root.setTop((new Label(String.format("Java version is %s", System.getProperties().getProperty("java.version")))));
 
+
+
+
         stage = new Stage();
         stage.setHeight(100);
         stage.setWidth(200);
         stage.setTitle("About");
         stage.setScene(new Scene(root));
+
+        stage.setOnHidden(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                stage.close();
+            }
+        });
     }
 
     public Stage getStage() {
