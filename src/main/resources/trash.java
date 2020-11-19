@@ -1,13 +1,6 @@
-package com.backEnd;
+/*    private List<Route> routes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class RoutesList{
-
-    private List<Route> routes;
-
-    public RoutesList() {
+    public Routes() {
         this.routes = new ArrayList<Route>();
     }
 
@@ -30,5 +23,5 @@ public class RoutesList{
 
     public int getLength() {
         return routes.size();
-    }
-}
+    }*/
+
