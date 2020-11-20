@@ -6,7 +6,6 @@ import com.backEnd.Routes;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,18 +21,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
-
-import java.text.DecimalFormat;
+import javafx.util.Duration;
 
 import static java.lang.Double.MAX_VALUE;
 
 public class EditWindow {
 
-    private final static Label pageNameLbl = new Label();
+    private final static Label pathCaption = new Label();
     private static TableView<Route> mainTable;
-    private final BorderPane mainPane = new BorderPane();
+    private final BorderPane mainBoxOfElements = new BorderPane();
     private final StackPane tableRoot = new StackPane();
-
     private final TableColumn<Route, Long> idColumn = new TableColumn<Route, Long>("ID");
     private final TableColumn<Route, String> nameColumn = new TableColumn<Route, String>("Name");
     private final TableColumn<Route, String> typeColumn = new TableColumn<Route, String>("Type of transport");
@@ -41,54 +38,40 @@ public class EditWindow {
     private final TableColumn<Route, Integer> stopsColumn = new TableColumn<Route, Integer>("Count of stops");
 
     public EditWindow() {
-//        mainPane = new BorderPane();
         mainTable = new TableView<Route>();
         HBox hBoxHeader = new HBox();
 
         {
-            BorderPane pane = new BorderPane();
-//            Label pageNameLbl = new Label();
-            VBox vbox1 = new VBox();
-            VBox vbox2 = new VBox();
+            BorderPane tableWithPathCaptionBox = new BorderPane();
+            VBox leftBoxOfElements = new VBox();
+            VBox rightBoxOfElements = new VBox();
 
-            //Page Name Label
+            // Page Name Label
             {
-//                Button newElement = new Button("Add Element");
-//                {
-//                    newElement.setOnAction(new EventHandler<ActionEvent>() {
-//                        @Override
-//                        public void handle(ActionEvent event) {
-//                            Global.routes.add(new Route("new element", "create by button", 1234, 5678));
-//                            mainTable.setItems(FXCollections.observableArrayList(Global.routes.getRoutes()));
-//                        }
-//                    });
-//                }
-
-                pageNameLbl.setAlignment(Pos.CENTER);
-                pageNameLbl.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                pageNameLbl.setPadding(new Insets(0, 0, 10, 0));
-                hBoxHeader.getChildren().addAll(pageNameLbl);
+                pathCaption.setAlignment(Pos.CENTER);
+                pathCaption.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                pathCaption.setPadding(new Insets(0, 0, 10, 0));
+                hBoxHeader.getChildren().addAll(pathCaption);
             }
 
             // Main Table
             {
-                var temp = 182;
-                System.out.println("temp = " + temp);
+                var width = 182;
                 idColumn.setCellValueFactory(new PropertyValueFactory<Route, Long>("id"));
                 idColumn.setPrefWidth(42);
                 idColumn.setStyle("-fx-text-alignment: center");
 
                 nameColumn.setCellValueFactory(new PropertyValueFactory<Route, String>("name"));
-                nameColumn.setPrefWidth(temp);
+                nameColumn.setPrefWidth(width);
 
                 typeColumn.setCellValueFactory(new PropertyValueFactory<Route, String>("typeOfTransport"));
-                typeColumn.setPrefWidth(temp);
+                typeColumn.setPrefWidth(width);
 
                 lengthColumn.setCellValueFactory(new PropertyValueFactory<Route, Integer>("length"));
-                lengthColumn.setPrefWidth(temp);
+                lengthColumn.setPrefWidth(width);
 
                 stopsColumn.setCellValueFactory(new PropertyValueFactory<Route, Integer>("countOfStops"));
-                stopsColumn.setPrefWidth(temp);
+                stopsColumn.setPrefWidth(width);
 
                 mainTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
@@ -97,7 +80,7 @@ public class EditWindow {
                         remove(event);
                     }
                 });
-
+                mainTable.setPrefHeight(250);
                 mainTable.getColumns().add(idColumn);
                 mainTable.getColumns().add(nameColumn);
                 mainTable.getColumns().add(typeColumn);
@@ -106,15 +89,14 @@ public class EditWindow {
                 tableRoot.getChildren().add(mainTable);
             }
 
-            //Pane
+            // Table With Caption Box
             {
-//                pane.setTop(pageNameLbl);
-                pane.setTop(hBoxHeader);
-                pane.setCenter(tableRoot);
-                mainPane.setTop(pane);
+                tableWithPathCaptionBox.setTop(hBoxHeader);
+                tableWithPathCaptionBox.setCenter(tableRoot);
+                mainBoxOfElements.setTop(tableWithPathCaptionBox);
             }
 
-            // Vbox1
+            // Left Box Of Elements
             {
                 TextField inputFilter = new TextField();
                 TextField inputRemoveCondition = new TextField();
@@ -122,8 +104,8 @@ public class EditWindow {
                 Button btnRemove = new Button();
                 Button btnResult1 = new Button();
                 Button btnResult2 = new Button();
-                HBox hBox1 = new HBox();
-                HBox hBox2 = new HBox();
+                HBox filterBox = new HBox();
+                HBox removeBox = new HBox();
 
                 //Button Remove
                 {
@@ -132,7 +114,11 @@ public class EditWindow {
                     btnRemove.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-                            Global.routes.removeDownThen(Integer.parseInt(inputRemoveCondition.getText()));
+                            if (!inputRemoveCondition.getText().equals("") && Global.routes != null && !Global.routes.getRoutes().isEmpty()) {
+                                Global.routes.removeDownThen(Integer.parseInt(inputRemoveCondition.getText()));
+                                inputRemoveCondition.setText("");
+                                addToTable();
+                            }
                         }
                     });
                 }
@@ -145,8 +131,9 @@ public class EditWindow {
                     btnFilter.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-                            addToTable(Global.routes.filter(inputFilter.getText()));
-                            inputFilter.setText("");
+                            if(Global.routes != null && !Global.routes.getRoutes().isEmpty()){
+                                addToTable(Global.routes.filter(inputFilter.getText()));
+                            }
                         }
                     });
 
@@ -160,7 +147,7 @@ public class EditWindow {
                     inputFilter.setOnKeyPressed(new EventHandler<KeyEvent>() {
                         @Override
                         public void handle(KeyEvent event) {
-                            if(event.getCode() == KeyCode.ENTER){
+                            if (event.getCode() == KeyCode.ENTER) {
                                 btnFilter.getOnAction().handle(new ActionEvent());
                             }
                         }
@@ -175,7 +162,15 @@ public class EditWindow {
                     inputRemoveCondition.setOnKeyPressed(new EventHandler<KeyEvent>() {
                         @Override
                         public void handle(KeyEvent event) {
-                            if(event.getCode() == KeyCode.ENTER) btnRemove.getOnAction().handle(new ActionEvent());
+                            if (event.getCode() == KeyCode.ENTER) btnRemove.getOnAction().handle(new ActionEvent());
+                        }
+                    });
+                    inputRemoveCondition.textProperty().addListener(new ChangeListener<String>() {
+                        @Override
+                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                            if (!newValue.matches("\\d*")) {
+                                inputRemoveCondition.setText(newValue.replaceAll("[^\\d]", ""));
+                            }
                         }
                     });
                 }
@@ -187,107 +182,166 @@ public class EditWindow {
                     btnResult1.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-//                            mainTable.setItems(Global.mainList);
-//                            System.out.println("Result1 clicked");
+                            if (Global.routes != null && !Global.routes.getRoutes().isEmpty()) {
+                                Global.routes.result1();
+                                VBox inPane = new VBox();
+                                for (var el : Global.routes.result1()) {
+                                    Label lbl = new Label(el);
+                                    lbl.setStyle("-fx-font-size: 20");
+                                    HBox box = new HBox(lbl);
+                                    inPane.getChildren().add(box);
+                                }
+                                inPane.setPadding(new Insets(10, 10, 10, 10));
+                                Window window = new Window("Result 1", inPane);
+                                window.showDialog(btnResult1);
+                            }
                         }
                     });
-
                 }
 
                 //Button Result2
                 {
                     btnResult2.setText("Result2");
                     btnResult2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    btnResult2.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            if (Global.routes != null && !Global.routes.getRoutes().isEmpty()) {
+                                String result = String.format("Quantity of routes: %s", Global.routes.getRoutes().size());
+                                Label outputText = new Label(result);
+                                outputText.setStyle("-fx-font-size: 14");
+                                outputText.setPadding(new Insets(10, 10, 10, 10));
+                                Window window = new Window("", new BorderPane(outputText));
+                                window.showDialog(btnResult2);
+                            }
+                        }
+                    });
                 }
 
-                //HBox1
+                // Filter Box
                 {
-                    hBox1.setSpacing(10);
-                    hBox1.setAlignment(Pos.CENTER);
-                    hBox1.getChildren().setAll(inputFilter, btnFilter);
-                    hBox1.setPadding(new Insets(10, 0, 0, 0));
+                    filterBox.setSpacing(10);
+                    filterBox.setAlignment(Pos.CENTER);
+                    filterBox.getChildren().setAll(inputFilter, btnFilter);
+                    filterBox.setPadding(new Insets(10, 0, 0, 0));
                 }
 
-                //HBox2
+                // Remove Box
                 {
-                    hBox2.setSpacing(10);
-                    hBox2.setAlignment(Pos.CENTER);
-                    hBox2.getChildren().setAll(inputRemoveCondition, btnRemove);
+                    removeBox.setSpacing(10);
+                    removeBox.setAlignment(Pos.CENTER);
+                    removeBox.getChildren().setAll(inputRemoveCondition, btnRemove);
                 }
 
-                //VBox1
-                {
-                    vbox1.setSpacing(10);
-                    vbox1.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                    vbox1.setPrefWidth(390);
-                    vbox1.setPadding(new Insets(0, 5, 0, 0));
-                    vbox1.getChildren().setAll(hBox1, hBox2, btnResult1, btnResult2);
-                }
-
+                leftBoxOfElements.setSpacing(10);
+                leftBoxOfElements.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                leftBoxOfElements.setPrefWidth(390);
+                leftBoxOfElements.setPadding(new Insets(0, 5, 0, 0));
+                leftBoxOfElements.getChildren().setAll(filterBox, removeBox, btnResult1, btnResult2);
             }
 
-            //Vbox2
+            // Right Box Of Elements
             {
                 Button sortingBtn = new Button("Sorting");
-                BorderPane internalPane = new BorderPane();
+                BorderPane selectionBox = new BorderPane();
                 Button applyBtn = new Button("Apply pop property");
-                TextField min = new TextField();
-                TextField max = new TextField();
-                Label internalLbl = new Label("Enter interval count of stops");
+                TextField getMinField = new TextField();
+                TextField getMaxField = new TextField();
+                Label captionOfBox = new Label("Enter interval count of stops");
 
                 // Sorting Button
                 {
                     sortingBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    sortingBtn.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            if( Global.routes != null && !Global.routes.getRoutes().isEmpty()){
+                                Global.routes = Global.routes.sortByType();
+                                addToTable();
+                            }
+                        }
+                    });
                 }
 
-                // Internal Label
+                // Caption of box
                 {
-                    internalLbl.setTextAlignment(TextAlignment.CENTER);
-                    internalLbl.setAlignment(Pos.CENTER);
-                    internalLbl.setPadding(new Insets(10, 0, 10, 0));
-                    internalLbl.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    captionOfBox.setStyle("-fx-font-size: 14");
+                    captionOfBox.setTextAlignment(TextAlignment.CENTER);
+                    captionOfBox.setAlignment(Pos.CENTER);
+                    captionOfBox.setPadding(new Insets(10, 0, 10, 0));
+                    captionOfBox.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 }
 
                 // Min
                 {
-                    min.setPromptText("Min");
-                    min.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                    min.autosize();
+                    getMinField.setPromptText("Min");
+                    getMinField.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    getMinField.textProperty().addListener(new ChangeListener<String>() {
+                        @Override
+                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                            if (!newValue.matches("\\d*")) {
+                                getMinField.setText(newValue.replaceAll("[^\\d]", ""));
+                            }
+                        }
+                    });
                 }
 
                 // Max
                 {
-                    max.setPromptText("Max");
-                    max.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                    max.autosize();
+                    getMaxField.setPromptText("Max");
+                    getMaxField.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                    getMaxField.textProperty().addListener(new ChangeListener<String>() {
+                        @Override
+                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                            if (!newValue.matches("\\d*")) {
+                                getMaxField.setText(newValue.replaceAll("[^\\d]", ""));
+                            }
+                        }
+                    });
+                    getMaxField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                        @Override
+                        public void handle(KeyEvent event) {
+                            if(event.getCode() == KeyCode.ENTER) applyBtn.getOnAction().handle(new ActionEvent());
+                        }
+                    });
                 }
 
                 // Apply Button
                 {
                     applyBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                    applyBtn.autosize();
+                    applyBtn.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            if( Global.routes != null && !Global.routes.getRoutes().isEmpty() && !getMaxField.getText().equals("") && !getMinField.getText().equals("")){
+                                addToTable(Global.routes.betWeenStops(Integer.parseInt(getMinField.getText()), Integer.parseInt(getMaxField.getText())));
+                                getMinField.setText("");
+                                getMaxField.setText("");
+                            }
+                        }
+                    });
+
                 }
 
-                // Internal Pane
+                // Min Max Fields Box
                 {
-                    HBox hBox = new HBox();
+                    HBox minMaxFieldsBox = new HBox();
                     {
-                        hBox.getChildren().setAll(min, max);
-                        hBox.setSpacing(10);
-                        hBox.setAlignment(Pos.CENTER);
-                        hBox.setPadding(new Insets(0, 0, 10, 0));
+                        minMaxFieldsBox.getChildren().setAll(getMinField, getMaxField);
+                        minMaxFieldsBox.setSpacing(10);
+                        minMaxFieldsBox.setAlignment(Pos.CENTER);
+                        minMaxFieldsBox.setPadding(new Insets(0, 0, 10, 0));
                     }
 
-                    internalPane.setTop(internalLbl);
-                    internalPane.setCenter(hBox);
-                    internalPane.setBottom(applyBtn);
+                    selectionBox.setTop(captionOfBox);
+                    selectionBox.setCenter(minMaxFieldsBox);
+                    selectionBox.setBottom(applyBtn);
                 }
 
-                vbox2.getChildren().addAll(sortingBtn, internalPane);
-                vbox2.setSpacing(9);
-                vbox2.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                vbox2.setPrefWidth(390);
-                vbox2.setPadding(new Insets(10, 0, 10, 5));
+                rightBoxOfElements.getChildren().addAll(sortingBtn, selectionBox);
+                rightBoxOfElements.setSpacing(6);
+                rightBoxOfElements.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                rightBoxOfElements.setPrefWidth(390);
+                rightBoxOfElements.setPadding(new Insets(10, 0, 10, 5));
 
             }
 
@@ -297,16 +351,21 @@ public class EditWindow {
 
                 HBox hBox = new HBox();
                 TextField nameField = new TextField();
+                TextField typeField = new TextField();
+                TextField lengthField = new TextField();
+                TextField stopsField = new TextField();
+                Button showAll = new Button("Show All");
+                Button commit = new Button("Add element to table");
+                VBox vBox = new VBox();
+
                 nameField.setPromptText("Enter name");
                 nameField.setMaxSize(MAX_VALUE, MAX_VALUE);
                 nameField.setPrefWidth(width);
 
-                TextField typeField = new TextField();
                 typeField.setPromptText("Enter type of transport");
                 typeField.setMaxSize(MAX_VALUE, MAX_VALUE);
                 typeField.setPrefWidth(width);
 
-                TextField lengthField = new TextField();
                 lengthField.textProperty().addListener(new ChangeListener<String>() {
                     @Override
                     public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -319,7 +378,6 @@ public class EditWindow {
                 lengthField.setMaxSize(MAX_VALUE, MAX_VALUE);
                 lengthField.setPrefWidth(width);
 
-                TextField stopsField = new TextField();
                 stopsField.textProperty().addListener(new ChangeListener<String>() {
                     @Override
                     public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -331,82 +389,85 @@ public class EditWindow {
                 stopsField.setPromptText("Enter stops");
                 stopsField.setMaxSize(MAX_VALUE, MAX_VALUE);
                 stopsField.setPrefWidth(width);
-
-                Button commit = new Button("Add element to table");
-                commit.setMaxSize(MAX_VALUE, MAX_VALUE);
-                commit.setOnAction(new EventHandler<ActionEvent>() {
+                stopsField.setOnKeyPressed(new EventHandler<KeyEvent>() {
                     @Override
-                    public void handle(ActionEvent event) {
-                        System.out.println(nameField.getText());
-                        System.out.println(typeField.getText());
-                        System.out.println(lengthField.getText());
-                        System.out.println(stopsField.getText());
-                        if (!nameField.getText().equals("") && !typeField.getText().equals("") && !lengthField.getText().equals("") && !stopsField.getText().equals("")) {
-                            Global.routes.add(new Route(nameField.getText(), typeField.getText(), Integer.parseInt(lengthField.getText()), Integer.parseInt(stopsField.getText())));
-                            mainTable.setItems(FXCollections.observableArrayList(Global.routes.getRoutes()));
-                        }
+                    public void handle(KeyEvent event) {
+                        if (event.getCode() == KeyCode.ENTER) commit.getOnAction().handle(new ActionEvent());
                     }
                 });
 
-                Button showAll = new Button("Show All");
                 showAll.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
-                        addToTable();
+                        if (Global.routes != null && !Global.routes.getRoutes().isEmpty()) {
+                            addToTable();
+                        }
                     }
                 });
+                showAll.setTooltip(new Tooltip("Click to show all\nelements from database"));
                 showAll.setMaxSize(MAX_VALUE, MAX_VALUE);
+
+                commit.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        if (Global.routes != null && !nameField.getText().equals("") && !typeField.getText().equals("") && !lengthField.getText().equals("") && !stopsField.getText().equals("")) {
+                            Global.routes.add(new Route(nameField.getText(), typeField.getText(), Integer.parseInt(lengthField.getText()), Integer.parseInt(stopsField.getText())));
+                            nameField.setText("");
+                            typeField.setText("");
+                            lengthField.setText("");
+                            stopsField.setText("");
+                            addToTable();
+                        }
+                    }
+                });
+                commit.setMaxSize(MAX_VALUE, MAX_VALUE);
 
                 hBox.setSpacing(10);
                 hBox.setMaxSize(MAX_VALUE, MAX_VALUE);
                 hBox.getChildren().addAll(nameField, typeField, lengthField, stopsField, commit);
 
-                VBox vBox = new VBox();
                 vBox.setSpacing(10);
                 vBox.setPadding(new Insets(10, 0, 0, 0));
                 vBox.getChildren().setAll(showAll, hBox);
 
-                mainPane.setCenter(vBox);
+                mainBoxOfElements.setCenter(vBox);
             }
-
-
-
-            mainPane.setBottom(new BorderPane(null, null, vbox2, null, vbox1));
-//            mainPane.setLeft(vbox1);
-//            mainPane.setRight(vbox2);
-            mainPane.setPadding(new Insets(10, 10, 10, 10));
+            mainBoxOfElements.setBottom(new BorderPane(null, null, rightBoxOfElements, null, leftBoxOfElements));
+            mainBoxOfElements.setPadding(new Insets(10, 10, 10, 10));
         }
     }
 
     public static void addToTable() {
-        mainTable.setItems(Global.getMainList());
+        setMainTable(Global.routes);
     }
 
     public static void addToTable(Routes routes) {
+        setMainTable(routes);
+    }
+
+    public static void setMainTable(Routes routes) {
         mainTable.setItems(FXCollections.observableArrayList(routes.getRoutes()));
+        pathCaption.setText(String.format("File: \"%s\"", Global.path));
     }
 
-    public BorderPane getMainPane() {
-        return mainPane;
-    }
-
-    public TableView<Route> getMainTable() {
-        return mainTable;
-    }
-
-    public static void setMainTable(ObservableList<Route> observable) {
-        mainTable.setItems(observable);
-        pageNameLbl.setText(String.format("File: \"%s\"", Global.path));
+    public BorderPane getMainBoxOfElements() {
+        return mainBoxOfElements;
     }
 
     public void editLine(MouseEvent mouseEvent) {
         Route currentRoute = mainTable.getSelectionModel().getSelectedItem();
-
         if (mouseEvent.getClickCount() == 2 && mouseEvent.getButton() == MouseButton.PRIMARY && currentRoute != null) {
-            HBox hbox = new HBox();
-            VBox vbox = new VBox();
-            vbox.setPadding(new Insets(0, 0, 0, 0));
-            vbox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            HBox inputFieldsBox = new HBox();
+            VBox updateBox = new VBox();
+            TextField editId = new TextField();
+            TextField editName = new TextField();
+            TextField editType = new TextField();
+            TextField editLength = new TextField();
+            TextField editStops = new TextField();
+            Button commit = new Button();
+
+            updateBox.setPadding(new Insets(0, 0, 0, 0));
+            updateBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
                 @Override
                 public void handle(KeyEvent event) {
                     if (event.getCode() == KeyCode.ESCAPE) {
@@ -417,55 +478,66 @@ public class EditWindow {
                 }
             });
 
-            TextField editId = new TextField();
             editId.setPrefWidth(idColumn.getWidth() + 1);
             editId.setDisable(true);
             editId.setStyle("-fx-opacity: 1; -fx-text-fill: #bbbbbb");
             editId.setText(String.valueOf(currentRoute.getId()));
 
-            TextField editName = new TextField();
             editName.setPrefWidth(nameColumn.getWidth());
             editName.setText(currentRoute.getName());
             editName.setFocusTraversable(true);
 
-            TextField editType = new TextField();
             editType.setPrefWidth(typeColumn.getWidth());
             editType.setText(currentRoute.getTypeOfTransport());
 
-            TextField editLength = new TextField();
             editLength.setPrefWidth(lengthColumn.getWidth());
             editLength.setText(String.valueOf(currentRoute.getLength()));
+            editLength.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    if (!newValue.matches("\\d*")) {
+                        editLength.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
+                }
+            });
 
-            TextField editStops = new TextField();
             editStops.setPrefWidth(stopsColumn.getWidth());
             editStops.setText(String.valueOf(currentRoute.getCountOfStops()));
+            editStops.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    if (!newValue.matches("\\d*")) {
+                        editStops.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
+                }
+            });
 
-            Button commit = new Button();
             commit.setTextAlignment(TextAlignment.CENTER);
             commit.setText("Commit");
             commit.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    Global.routes.getById(Long.parseLong(editId.getText())).setName(editName.getText());
-                    Global.routes.getById(Long.parseLong(editId.getText())).setTypeOfTransport(editType.getText());
-                    Global.routes.getById(Long.parseLong(editId.getText())).setLength(Integer.parseInt(editLength.getText()));
-                    Global.routes.getById(Long.parseLong(editId.getText())).setCountOfStops(Integer.parseInt(editStops.getText()));
-                    tableRoot.getChildren().clear();
-                    tableRoot.getChildren().add(mainTable);
-                    addToTable();
+                    if(!editName.getText().equals("") && !editType.getText().equals("") && !editLength.getText().equals("") && !editStops.getText().equals("")){
+                        Global.routes.getById(Long.parseLong(editId.getText())).setName(editName.getText());
+                        Global.routes.getById(Long.parseLong(editId.getText())).setTypeOfTransport(editType.getText());
+                        Global.routes.getById(Long.parseLong(editId.getText())).setLength(Integer.parseInt(editLength.getText()));
+                        Global.routes.getById(Long.parseLong(editId.getText())).setCountOfStops(Integer.parseInt(editStops.getText()));
+                        tableRoot.getChildren().clear();
+                        tableRoot.getChildren().add(mainTable);
+                        addToTable();
+                    }
                 }
             });
             commit.setMaxWidth(MAX_VALUE);
 
-            hbox.getChildren().addAll(editId, editName, editType, editLength, editStops);
-            hbox.isFocused();
-            vbox.getChildren().addAll(hbox, commit);
+            inputFieldsBox.getChildren().addAll(editId, editName, editType, editLength, editStops);
+            inputFieldsBox.isFocused();
+            updateBox.getChildren().addAll(inputFieldsBox, commit);
             tableRoot.getChildren().clear();
-            tableRoot.getChildren().addAll(vbox, mainTable);
+            tableRoot.getChildren().addAll(updateBox, mainTable);
 
-//        if (mouseEvent.getClickCount() == 2) {
-            StackPane.setMargin(vbox, new Insets(mouseEvent.getY(), mainPane.getPadding().getRight(), 0, 0));
-            vbox.toFront();
+            StackPane.setMargin(updateBox, new Insets(mouseEvent.getY(), mainBoxOfElements.getPadding().getRight(), 0, 0));
+            updateBox.toFront();
         }
     }
 

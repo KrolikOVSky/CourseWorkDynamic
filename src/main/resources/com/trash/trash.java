@@ -25,3 +25,21 @@
         return routes.size();
     }*/
 
+/*
+
+ Global.routes != null && !Global.routes.getRoutes().isEmpty()
+
+.textProperty().addListener(new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                        if (!newValue.matches("\\d*")) {
+                            stopsField.setText(newValue.replaceAll("[^\\d]", ""));
+                        }
+                    }
+                });
+
+
+
+
+
+ */

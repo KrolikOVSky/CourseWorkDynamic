@@ -138,35 +138,52 @@ public class Routes {
         return routes.size();
     }
 
-    public Routes sortById() {
-        Comparator<Route> comparator = Comparator.comparing(Route::getId);
-        Routes routes = new Routes(this.routes);
-        routes.routes.sort(comparator);
-        return routes;
-    }
-
     public Routes sortByType() {
-        Comparator<Route> comparator = Comparator.comparing(Route::getTypeOfTransport);
+        Comparator<Route> comparator = Comparator.comparing(Route::getTypeOfTransport).reversed().thenComparing(Route::getLength).reversed();
         Routes routes = new Routes(this.routes);
         routes.routes.sort(comparator);
         return routes;
     }
 
-    public Routes sortByLength() {
-        Comparator<Route> comparator = Comparator.comparing(Route::getLength);
-        Routes routes = new Routes(this.routes);
-        routes.routes.sort(comparator);
+    public Routes betWeenStops(int min, int max){
+        var routes = new Routes();
+        for(var el : this.routes){
+            if(el.getCountOfStops() > min && el.getCountOfStops() < max) routes.add(el);
+        }
         return routes;
+    }
+
+    public List<String> result1(){
+        var routes = new Routes(this.sortByType().getRoutes());
+        var typesList = new ArrayList<String>();
+        var result = new ArrayList<String>();
+
+        typesList.add(routes.getById(1L).getTypeOfTransport());
+        for(var el : routes.getRoutes()){
+            if(!typesList.get(typesList.size()-1).equals(el.getTypeOfTransport())){
+                typesList.add(el.getTypeOfTransport());
+            }
+        }
+
+        for(var el : typesList){
+            var min = Integer.MAX_VALUE;
+            var max = Integer.MIN_VALUE;
+            for(var route : routes.getRoutes()){
+                if(el.equals(route.getTypeOfTransport())){
+                    if(route.getCountOfStops() > max) max = route.getCountOfStops();
+                    if(route.getCountOfStops() < min) min = route.getCountOfStops();
+                }
+            }
+            result.add(String.format("Type of transport: %s\t\tMax: %d\t\tMin: %d", el, max, min));
+        }
+//        System.out.println(result.toString());
+
+//        for (var el : typesList) System.out.println(el);
+        return result;
     }
 
     public void removeDownThen(int value){
-        var i = 0;
-        var routes = new Routes(this.getRoutes());
-        for(var el : routes.getRoutes()){
-            if(el.getLength() < value){
-                this.remove(el.getId());
-            }
-        }
+        this.getRoutes().removeIf(n -> (n.getLength() < value));
     }
 
     public Routes filter(String type) {
@@ -176,6 +193,7 @@ public class Routes {
                 routes.add(el);
             }
         }
+
         return routes;
     }
 

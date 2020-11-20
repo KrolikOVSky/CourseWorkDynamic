@@ -171,8 +171,8 @@ public class MainWindow {
                         @Override
                         public void handle(ActionEvent event) {
                             AboutWindow aboutWindow = new AboutWindow();
-                            aboutWindow.getStage().toFront();
-                            aboutWindow.getStage().showAndWait();
+//                            aboutWindow.getStage().toFront();
+//                            aboutWindow.getStage().showAndWait();
                         }
                     });
                 }

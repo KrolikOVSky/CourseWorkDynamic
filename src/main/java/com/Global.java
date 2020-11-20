@@ -3,11 +3,8 @@ package com;
 import com.backEnd.Route;
 import com.backEnd.Routes;
 import com.frontEnd.EditWindow;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -17,15 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Global {
-    public static final String extension = "*.mydb" ;
+    public static final String extension = "*.mydb";
     public static String path = "";
     public static Routes routes;
-    private static Stage stage;
-    private static Scene scene;
-    private static BorderPane root;
-    private static TableView<Route> mainTable;
-    public static ObservableList<Route> mainList = FXCollections.emptyObservableList();
-
 
     public static void errorReport(Exception e) {
         e.printStackTrace();
@@ -101,28 +92,13 @@ public class Global {
             j++;
             routes.add(route);
         }
-
-        int i = 0;
-//        mainList = FXCollections.observableList(routes.getRoutes());
-//        mainList = FXCollections.observableList(routes.getRoutes());
-        EditWindow.setMainTable(FXCollections.observableArrayList(routes.getRoutes()));
-
-
-        //        obRoutes = FXCollections.observableList(routes.getRoutes());
-//        mainTable.getItems().addAll();
-//        System.out.println(Arrays.toString(routes.getRoutes().toArray()));
-//        EditWindowController.addToTable(routes);
-//       return list;
-    }
-
-    public static ObservableList<Route> getMainList() {
-        return FXCollections.observableArrayList(routes.getRoutes());
+        EditWindow.setMainTable(routes);
     }
 
     public static void newSource() {
         routes = new Routes();
         path = "";
-        EditWindow.setMainTable(getMainList());
+        EditWindow.setMainTable(routes);
     }
 
 }

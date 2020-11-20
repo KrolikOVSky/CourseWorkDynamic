@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -40,7 +41,7 @@ public class Main extends Application {
     
     public static void setScene(Node node){
         BorderPane mainWorkSpace = new BorderPane();
-        mainWorkSpace.setPrefSize(800, 600);
+//        mainWorkSpace.setPrefSize(800, 600);
         mainWorkSpace.setTop(new Header().getMainMenuBar());
         mainWorkSpace.setCenter(node);
         mainScene.setRoot(mainWorkSpace);
@@ -52,12 +53,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage mainStage) throws Exception {
-        setScene(new EditWindow().getMainPane());
+        setScene(new EditWindow().getMainBoxOfElements());
         primaryStage.setScene(mainScene);
         primaryStage.setResizable(false);
-//        primaryStage.setHeight(600);
-//        primaryStage.setWidth(800);
+        primaryStage.setTitle("Program to work with database of transport");
+        primaryStage.getIcons().add(new Image("/com/images/_icon.png"));
         primaryStage.show();
     }
-}
-
+}//C:\Users\Alex\IdeaProjects\CourseWorkDynamic\src\main\resources\com\images

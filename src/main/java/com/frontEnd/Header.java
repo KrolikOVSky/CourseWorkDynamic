@@ -119,7 +119,7 @@ public class Header {
                     addTableItem.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
-//                            Main.setScene(new EditWindow().getMainPane());
+//                            Main.setScene(new EditWindow().getMainBoxOfElements());
                         }
                     });
                 }
@@ -179,8 +179,8 @@ public class Header {
                         @Override
                         public void handle(ActionEvent event) {
                             AboutWindow aboutWindow = new AboutWindow();
-                            aboutWindow.getStage().toFront();
-                            aboutWindow.getStage().showAndWait();
+//                            aboutWindow.getStage().toFront();
+//                            aboutWindow.getStage().showAndWait();
                         }
                     });
                 }
