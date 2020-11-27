@@ -3,10 +3,13 @@ package com;
 import com.backEnd.Route;
 import com.backEnd.Routes;
 import com.frontEnd.EditWindow;
+import com.frontEnd.Header;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.FileWriter;
@@ -14,9 +17,18 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Global {
-    public static final String extension = "*.mydb";
+    public static final String extension = ".mydb";
     public static String path = "";
     public static Routes routes;
+    public static Stage primaryStage = new Stage();
+    public static Scene mainScene = new Scene(new Pane());
+
+    public static void setScene(Node node){
+        BorderPane mainWorkSpace = new BorderPane();
+        mainWorkSpace.setTop(new Header().getMainMenuBar());
+        mainWorkSpace.setCenter(node);
+        mainScene.setRoot(mainWorkSpace);
+    }
 
     public static void errorReport(Exception e) {
         e.printStackTrace();

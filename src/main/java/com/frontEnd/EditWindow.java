@@ -39,7 +39,6 @@ public class EditWindow {
 
     public EditWindow() {
         mainTable = new TableView<Route>();
-        HBox hBoxHeader = new HBox();
 
         {
             BorderPane tableWithPathCaptionBox = new BorderPane();
@@ -48,13 +47,12 @@ public class EditWindow {
 
             // Page Name Label
             {
-                pathCaption.setAlignment(Pos.CENTER);
+                pathCaption.setAlignment(Pos.CENTER_LEFT);
                 pathCaption.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 pathCaption.setPadding(new Insets(0, 0, 10, 0));
-                hBoxHeader.getChildren().addAll(pathCaption);
             }
 
-            // Main Table
+            // Run Table
             {
                 var width = 182;
                 idColumn.setCellValueFactory(new PropertyValueFactory<Route, Long>("id"));
@@ -91,7 +89,7 @@ public class EditWindow {
 
             // Table With Caption Box
             {
-                tableWithPathCaptionBox.setTop(hBoxHeader);
+                tableWithPathCaptionBox.setTop(pathCaption);
                 tableWithPathCaptionBox.setCenter(tableRoot);
                 mainBoxOfElements.setTop(tableWithPathCaptionBox);
             }
@@ -185,15 +183,29 @@ public class EditWindow {
                             if (Global.routes != null && !Global.routes.getRoutes().isEmpty()) {
                                 Global.routes.result1();
                                 VBox inPane = new VBox();
+                                ScrollPane scPane = new ScrollPane();
                                 for (var el : Global.routes.result1()) {
-                                    Label lbl = new Label(el);
+                                    Label lbl = new Label(el + ".");
+                                    lbl.setTextAlignment(TextAlignment.CENTER);
+                                    lbl.setAlignment(Pos.CENTER);
                                     lbl.setStyle("-fx-font-size: 20");
-                                    HBox box = new HBox(lbl);
-                                    inPane.getChildren().add(box);
+//                                    HBox box = new HBox(lbl);
+//                                    box.setAlignment(Pos.CENTER);
+                                    inPane.getChildren().add(lbl);
+//                                    scPane.setContent(lbl);
                                 }
+
+//                                inPane.getChildren().add(scPane);
+                                inPane.setAlignment(Pos.CENTER_LEFT);
+                                inPane.setSpacing(10);
                                 inPane.setPadding(new Insets(10, 10, 10, 10));
-                                Window window = new Window("Result 1", inPane);
-                                window.showDialog(btnResult1);
+                                scPane.setContent(inPane);
+//                                scPane.setVvalue(0.5);
+//                                scPane.setHvalue(0.5);
+                                scPane.setPadding(new Insets(30, 30, 10, 30));
+                                Window window = new Window("Result 1");
+//                                window.showDialog(inPane);
+                                window.showDialog(scPane);
                             }
                         }
                     });
@@ -211,8 +223,8 @@ public class EditWindow {
                                 Label outputText = new Label(result);
                                 outputText.setStyle("-fx-font-size: 14");
                                 outputText.setPadding(new Insets(10, 10, 10, 10));
-                                Window window = new Window("", new BorderPane(outputText));
-                                window.showDialog(btnResult2);
+                                Window window = new Window("Result 2");
+                                window.showDialog( new BorderPane(outputText));
                             }
                         }
                     });
